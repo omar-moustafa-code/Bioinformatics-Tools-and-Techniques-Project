@@ -9,13 +9,13 @@ This project reanalyzes publicly available 16S ribosomal RNA sequencing data fro
 ## Methods
 All downstream analysis was performed in Python 3.12 in a single reproducible Jupyter Notebook:
 
-Load data — ASV count table, SILVA taxonomy, and sample metadata (pandas)
-Prevalence filter — remove ASVs present in <5% of samples (min. 2 samples)
-Relative abundance — convert raw counts to per-sample proportions
-Alpha diversity — Shannon index per sample; paired Wilcoxon signed-rank test within household pairs (scikit-bio, scipy)
-Beta diversity — Bray-Curtis dissimilarity matrix (scikit-bio)
-Ordination — Principal Coordinates Analysis (PCoA) visualization (scikit-bio, matplotlib, seaborn)
-PERMANOVA — test group separation with 999 permutations (scikit-bio)
-Differential abundance — per-genus Mann-Whitney U tests with Benjamini-Hochberg FDR correction (scipy, statsmodels)
+- Load data: ASV count table, SILVA taxonomy, and sample metadata (pandas)
+- Prevalence filter: remove ASVs present in <5% of samples (min. 2 samples)
+- Relative abundance: convert raw counts to per-sample proportions
+- Alpha diversity: Shannon index per sample; paired Wilcoxon signed-rank test within household pairs (scikit-bio, scipy)
+- Beta diversity: Bray-Curtis dissimilarity matrix (scikit-bio)
+- Ordination: Principal Coordinates Analysis (PCoA) visualization (scikit-bio, matplotlib, seaborn)
+- PERMANOVA: test group separation with 999 permutations (scikit-bio)
+- Differential abundance: per-genus Mann-Whitney U tests with Benjamini-Hochberg FDR correction (scipy, statsmodels)
 
 
