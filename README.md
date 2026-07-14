@@ -12,12 +12,6 @@ Reanalysis of 16S rRNA sequencing data from the Hertzberg et al. (2021) ALS coho
 - [Key Findings](#key-findings)
 - [Repository Structure](#repository-structure)
 - [Methods](#methods)
-- [Requirements](#requirements)
-- [Usage](#usage)
-- [Results](#results)
-- [Limitations](#limitations)
-- [References](#references)
-- [License](#license)
 
 ---
 
