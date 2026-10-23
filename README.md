@@ -1,96 +1,49 @@
-# Gut Microbial Diversity in Amyotrophic Lateral Sclerosis
+# ALS Gut Microbiome Reanalysis (PRJNA566436)
 
-**Reanalysis of 16S rRNA sequencing data from the Hertzberg et al. (2021) ALS cohort.**
+Course project (BIOL 3601, *Bioinformatics Tools and Techniques*, Project 6): reanalysis of the 16S rRNA gut-microbiome data from Hertzberg et al. (2021), comparing 9 ALS patients with their 9 spouse controls.
 
-This project investigates gut microbiome differences between ALS patients and their healthy spouse controls, leveraging a paired household design to control for environmental confounders. The analysis was implemented in a fully reproducible Python and R workflow.
+## Summary of findings (exploratory, n = 9 pairs)
+| Analysis | Result |
+|---|---|
+| Sequencing depth | Balanced between groups (paired Wilcoxon p = 0.65) |
+| Shannon diversity | Higher in ALS, 9/9 pairs; paired Wilcoxon p = 0.0039 (the minimum possible for n = 9); holds after rarefaction |
+| Richness / Pielou evenness | Both higher in ALS (p = 0.0039 / 0.012) |
+| Bray-Curtis PERMANOVA | pseudo-F = 1.71; unrestricted p ≈ 0.02; **exact paired (512 swaps) p = 0.0078** |
+| Dispersion (PERMDISP) | Bray-Curtis: n.s. (p = 0.36). Aitchison: differs (p = 0.011), so interpret that PERMANOVA cautiously |
+| Genus level (51 genera) | **No genus reaches q < 0.05** (best: Blautia, [Ruminococcus] torques group, Oscillibacter, q = 0.066 on paired CLR tests) |
+| *Prevotella* | Lower in ALS (15% vs 43% mean relative abundance) but not significant (paired q = 0.37) |
 
----
+Limitations: tiny sample; unmodelled confounders (sex, diet, dysphagia, riluzole); ~19% of filtered reads lack a genus label; compositional data with pseudocount-sensitive genus tests.
 
-## 📋 Table of Contents
+## Repository structure
+```
+.
+├── README.md
+├── ALS_Microbiome_Reanalysis_v2.ipynb   # upgraded notebook (runs top to bottom)
+├── CORRECTIONS.md                       # errata for the original report + revised results text
+├── data/
+│   ├── metadata.tsv      # sample, status (ALS/Control), pair
+│   ├── asv_table.tsv     # 275 ASVs x 18 samples (DADA2 counts)
+│   └── taxonomy.tsv      # SILVA 138 assignments
+└── report/               # PDF report
+```
 
-- [Biological Question](#biological-question)
-- [Hypotheses](#hypotheses)
-- [Project Overview](#project-overview)
-- [Key Findings](#key-findings)
-- [Repository Structure](#repository-structure)
-- [Methods](#methods)
-- [Software and Libraries](#software-and-libraries)
-- [How to Reproduce This Work](#how-to-reproduce-this-work)
+## Data provenance
+Raw reads: NCBI SRA BioProject PRJNA566436. ASVs were inferred with DADA2 (R) and annotated against SILVA 138. Record the exact R/dada2 versions and truncation parameters you used in `data/PROVENANCE.md`; do not state versions you did not run.
 
----
+## Reproduce
+1. `git clone <repo-url> && cd <repo>`
+2. `python -m venv .venv && source .venv/bin/activate`
+3. `pip install scikit-bio statsmodels scipy pandas numpy matplotlib seaborn jupyter` (pin the versions you used in `requirements.txt`)
+4. `jupyter lab ALS_Microbiome_Reanalysis_v2.ipynb`, then run all cells. The notebook downloads `data/` if absent.
 
-## 🧬 Biological Question
+Colab: open the notebook and run all cells; no local setup needed.
 
-**Does the gut bacterial community of ALS patients differ from that of healthy spouse controls in within-sample diversity (alpha) and between-sample composition (beta)?**
+## Note on sample size
+The original study analysed 10 ALS-spouse pairs plus 10 healthy couples. The public BioProject (PRJNA566436) contains 18 samples, so this reanalysis has 9 pairs.
 
-## 🔬 Hypotheses
+## Reference
+Hertzberg VS, et al. (2021). Gut microbiome in amyotrophic lateral sclerosis, spousal-control design. BioProject PRJNA566436. Verify the full citation against the paper before publishing.
 
-1.  ALS patients will show **lower Shannon alpha diversity** than their matched controls.
-2.  ALS patients will show **visible separation from controls** in a Bray-Curtis PCoA ordination.
-
-## 📊 Project Overview
-
-This project reanalyzes publicly available 16S ribosomal RNA sequencing data from the Hertzberg et al. (2021) cohort. The spouse-paired design is a key strength, as it controls for shared diet, household environment, and lifestyle factors—precisely the variables that confound typical case-control microbiome studies.
-
-### Cohort Details
-
-| Feature          | Description                                       |
-| :--------------- | :------------------------------------------------ |
-| **Samples**      | 18 stool samples (9 ALS patients + 9 spouses)     |
-| **Design**       | 9 household pairs (spouse-paired)                 |
-| **Target**       | V4 region of the 16S rRNA gene                    |
-| **Primers**      | 515F / 806R                                       |
-| **Platform**     | Illumina MiSeq                                    |
-| **Accession**    | NCBI BioProject PRJNA566436                       |
-
----
-
-## 🎯 Key Findings
-
-| Finding                                                        | Result                                                                                            |
-| :------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| **Alpha Diversity**                                            | ALS patients had **significantly higher** Shannon diversity than spouses (paired Wilcoxon, p = 0.004). *This was the opposite of the initial hypothesis.* |
-| **Beta Diversity**                                             | Significant but modest separation in overall composition (PERMANOVA pseudo-F = 1.7, p ≈ 0.02).    |
-| **Top ALS-Enriched Genera** (by q-value)                       | *Parabacteroides*, *Ruminococcus torques* group, *Blautia*, *Subdoligranulum*, *Lachnoclostridium*. |
-| **Top Control-Enriched Genus**                                 | *Escherichia-Shigella*.                                                                           |
-| **Key Negative Finding**                                       | *Akkermansia muciniphila*, a taxon of interest from mouse models, was not a top hit.              |
-
-> **⚠️ Important Note:** These findings are preliminary and based on a small cohort (n=18). Replication in larger, independent cohorts is essential.
-
----
-
-## 🛠️ Methods
-
-### Upstream Processing (R/DADA2)
-The raw reads were processed using the standard DADA2 workflow (Callahan et al., 2016) against the SILVA 138 reference database (Quast et al., 2013). This produced an Amplicon Sequence Variant (ASV) count table and taxonomy assignments, which served as the input for this analysis.
-
-### Downstream Analysis (Python)
-All downstream statistical analysis and visualization were performed in Python 3.12 within a dedicated Conda environment. The workflow is fully reproducible.
-
-| Step | What It Does | Python Tools |
-| :--- | :--- | :--- |
-| 1 | Load ASV table, taxonomy, and sample metadata | `pandas` |
-| 2 | Drop rare ASVs (<5% prevalence, min. 2 samples) | `pandas` |
-| 3 | Convert counts to per-sample relative abundances | `pandas` |
-| 4 | Compute Shannon alpha diversity; perform paired Wilcoxon test | `scikit-bio`, `scipy.stats` |
-| 5 | Compute Bray-Curtis beta diversity matrix | `scikit-bio` |
-| 6 | Project distances to 2D with PCoA and plot | `scikit-bio`, `matplotlib`, `seaborn` |
-| 7 | Test group separation with PERMANOVA (999 permutations) | `scikit-bio` |
-| 8 | Per-genus Mann-Whitney U tests + Benjamini-Hochberg FDR correction | `scipy.stats`, `statsmodels` |
-
-## 💻 Software and Libraries
-
-- **R (v4.4)**: `dada2` (v1.32) for upstream processing.
-- **Python (v3.12)**: Core analysis environment.
-    - **Core**: `pandas`, `numpy`, `scipy`, `statsmodels`
-    - **Bioinformatics**: `scikit-bio`
-    - **Visualization**: `matplotlib`, `seaborn`
-- **Reproducibility**: All analyses are contained in a single Jupyter notebook with version-pinned dependencies (provided in the `environment.yml` file).
-
-## 🔄 How to Reproduce This Work
-
-1.  Clone this repository to your local machine.
-2.  Navigate to the project directory and create the Conda environment:
-    ```bash
-    conda env create -f environment.yml
-    conda activate als-microbiome
+## License
+Add a LICENSE file (e.g. MIT for code); the data remain under the original SRA terms.
