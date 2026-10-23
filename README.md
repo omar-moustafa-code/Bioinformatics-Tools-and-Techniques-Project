@@ -44,6 +44,3 @@ The original study analysed 10 ALS-spouse pairs plus 10 healthy couples. The pub
 
 ## Reference
 Hertzberg VS, et al. (2021). Gut microbiome in amyotrophic lateral sclerosis, spousal-control design. BioProject PRJNA566436. Verify the full citation against the paper before publishing.
-
-## License
-Add a LICENSE file (e.g. MIT for code); the data remain under the original SRA terms.
